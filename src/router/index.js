@@ -1,23 +1,24 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import movieRouter from './movie'
+import mineRouter from './mine'
+import cinemaRouter from './cinema'
+
 
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: Home
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
+    //这种切换路由是：当切换到about时才会加载about路由，对于大项目来说更好一些
+    //component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+
+    movieRouter,
+    mineRouter,
+    cinemaRouter,
+    //重定向：当路径找不到时默认到movie页面
+    {
+      path : '/*',
+      redirect : '/movie'
+    }
 ]
 
 const router = new VueRouter({
