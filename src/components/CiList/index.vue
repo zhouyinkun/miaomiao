@@ -1,7 +1,7 @@
 <template>
     <div class="cinema_body">
         <ul>
-            <li>
+            <!-- <li>
                 <div>
                     <span>大地影院(澳东世纪店)</span>
                     <span class="q"><span class="price">22.9</span> 元起</span>
@@ -14,6 +14,19 @@
                     <div>小吃</div>
                     <div>折扣卡</div>
                 </div>
+            </li> -->
+            <li v-for="item in cinemaList" :key="item.id">
+                <div>
+                    <span>{{ item.nm }}</span>
+                    <span class="q"><span class="price">{{ item.sellPrice }}</span> 元起</span>
+                </div>
+                <div class="address">
+                    <span>{{ item.addr }}</span>
+                    <span>{{ item.distance }}</span>
+                </div>
+                <div class="card">
+                    <div v-for="(num,key) in item.tag" v-if="num===1" :key="key" :class=" key | classCard ">{{ key | formatCard }}</div>
+                </div>
             </li>
         </ul>
     </div>
@@ -21,7 +34,48 @@
 
 <script>
 export default {
-    name : 'CiList'
+    name : 'CiList',
+    data(){
+        return {
+            cinemaList : [],
+
+        };
+    },
+    mounted(){
+        this.axios.get('/ajax/cinemaList?day=2020-02-07&offset=0&limit=20&districtId=-1&lineId=-1&hallType=-1&brandId=-1&serviceId=-1&areaId=-1&stationId=-1&item=&updateShowDay=true&reqId=1581082130218&cityId=45&optimus_uuid=A1D1AEA0497B11EA845A71913F2FF74422B92D87198141EFB769B4BD600BAFDB&optimus_risk_level=71&optimus_code=10').then((res)=>{
+            this.cinemaList = res.data.cinemas;
+        });
+    },
+    filters : {
+        formatCard(key){
+            var card = [
+                { key : 'allowRefund' , value : '改签' },
+                { key : 'endorse' , value : '退' },
+                { key : 'sell' , value : '折扣卡' },
+                { key : 'snack' , value : '小吃'}
+            ];
+            for(var i=0;i<card.length;i++){
+                if(card[i].key === key){
+                    return card[i].value;
+                }
+            }
+            return '';
+        },
+        classCard(key){
+            var card = [
+                { key : 'allowRefund' , value : 'bl' },
+                { key : 'endorse' , value : 'bl' },
+                { key : 'sell' , value : 'or' },
+                { key : 'snack' , value : 'or'}
+            ];
+            for(var i=0;i<card.length;i++){
+                if(card[i].key === key){
+                    return card[i].value;
+                }
+            }
+            return '';
+        }
+    }
 }
 </script>
 
