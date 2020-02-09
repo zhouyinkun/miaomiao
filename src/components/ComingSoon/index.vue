@@ -1,5 +1,7 @@
 <template>
     <div class="movie_body">
+        <Loading v-if="isLoading"/>
+        <Scroller v-else>
             <ul>
                 <!-- <li>
                     <div class="pic_show"><img src="/images/movie_1.jpg"></div>
@@ -26,6 +28,7 @@
                     </div>
                 </li>
             </ul>
+        </Scroller>
     </div>
 </template>
 
@@ -35,15 +38,23 @@ export default {
     data(){
         return {
             comingList : [],
+            isLoading : true,
+            prevCityId : -1
         };
     },
-    mounted(){
-        this.axios.get('/ajax/comingList?ci=778&token=&limit=10&optimus_uuid=A1D1AEA0497B11EA845A71913F2FF74422B92D87198141EFB769B4BD600BAFDB&optimus_risk_level=71&optimus_code=10').then((res)=>{
+    activated(){
+        //当切换城市后，id不同就向下执行，否则返回
+        var cityId = this.$store.state.city.id;
+        if(this.prevCityId === cityId){return;}
+        this.isLoading = true;
+        this.axios.get('/ajax/comingList?ci='+cityId+'&token=&limit=10&optimus_uuid=A1D1AEA0497B11EA845A71913F2FF74422B92D87198141EFB769B4BD600BAFDB&optimus_risk_level=71&optimus_code=10').then((res)=>{
             /*var msg = res.data.msg;
             if(msg === 'ok'){
                 this.comingList = res.data.coming; 
             }*/
             this.comingList = res.data.coming; 
+            this.isLoading = false;
+            this.prevCityId = cityId;
         })
     },
 }

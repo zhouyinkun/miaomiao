@@ -1,5 +1,8 @@
 <template>
-    <div class="movie_body">
+    <div class="movie_body" ref="movie_body">
+        <Loading v-if="isLoading"/>
+        <!-- 进行父子通信，传递两个方法 -->
+        <Scroller v-else :handleToScroll="handleToScroll" :handleToTouchEnd="handleToTouchEnd">
             <ul>
                 <!-- <li>
                     <div class="pic_show"><img src="/images/movie_1.jpg"></div>
@@ -13,8 +16,9 @@
                         购票
                     </div>
                 </li> -->
+                <li class="pullDown">{{pullDownMsg}}</li>
                 <li v-for="item in movieList" :key="item.id">
-                    <div class="pic_show"><img :src="item.img | setWH('128.180')"></div>
+                    <div class="pic_show" @tap="handleToDetail"><img :src="item.img | setWH('128.180')"></div>
                     <div class="info_list">
                         <h2>{{ item.nm }} <img v-if="item.version" src="@/assets/maxs.png" alt=""></h2>
                         <p>观众评 <span class="grade">{{ item.sc }}</span></p>
@@ -26,6 +30,7 @@
                     </div>
                 </li>
             </ul>
+        </Scroller>
     </div>
 </template>
 
@@ -38,16 +43,74 @@ export default {
     data(){
         return {
             movieList : [],
+            pullDownMsg : '',//下拉信息
+            isLoading : true,//判断是否加载完成
+            prevCityId : -1
         }
     },
-    mounted(){
+    activated(){//当keep-alive组件激活调用
         this.axios.get('/api/movieOnInfoList?cityId=10').then((res)=>{
             var msg = res.data.msg;
             if( msg === 'ok' ){
-                this.movieList = res.data.data.movieList; 
+                this.movieList = res.data.data.movieList;
+                this.isLoading = false
+                /*better-scroll使用条件:
+                    1.必须数据完全渲染到页面才能使用
+                    2.必须外面容器大于里面容器
+                保证数据渲染后才会触发方法的回调
+                */
+                /*this.$nextTick(()=>{//第一个参数：外部容器classname,配置属性
+                    var scroll = new BScroll(this.$refs.movie_body,{
+                        //开启tap触发事件
+                        tap : true,
+                        //滚动的时候会派发scroll事件，会截流（一段时间内触发一次）
+                        probeType:1
+                    }); 
+                    scroll.on('scroll',(pos)=>{
+                        console.log("scroll事件");
+                        if(pos.y>30){//pos是检测当前位置，是个对象有xy
+                            this.pullDownMsg = '正在刷新中'
+                        }
+                    });
+                    //当拖拽结束后触发的事件
+                    scroll.on('touchEnd',(pos)=>{
+                        console.log("touchEnd事件");
+                        if(pos.y>30){//重新请求ajax
+                            this.axios.get('/api/movieOnInfoList?cityId=10').then((res)=>{
+                                this.pullDownMsg = '更新成功'
+                                setTimeout(()=>{
+                                    this.movieList = res.data.data.movieList;
+                                    this.pullDownMsg = ''
+                                },1000);//延时1s
+                            });
+                        }
+                    })
+                });*/
             }
         });
     },
+    methods : {
+        handleToDetail(){
+            console.log("11");
+        },
+        handleToScroll(pos){
+            console.log("Scroll事件");
+            if(pos.y>30){//pos是检测当前位置，是个对象有xy
+                this.pullDownMsg = '正在刷新中'
+            }
+        },
+        handleToTouchEnd(pos){
+            if(pos.y>30){//重新请求ajax
+                this.axios.get('/api/movieOnInfoList?cityId=1').then((res)=>{
+                    this.pullDownMsg = '更新成功'
+                    setTimeout(()=>{
+                        this.movieList = res.data.data.movieList;
+                        this.pullDownMsg = ''
+                    },1000);//延时1s
+                });
+            }            
+        }
+    }
 }
 </script>
 
