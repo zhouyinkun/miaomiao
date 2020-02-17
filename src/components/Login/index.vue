@@ -17,8 +17,46 @@
 </template>
 
 <script>
+import {messageBox} from '@/components/JS'
 export default {
-    name : 'Login'
+    name : 'Login',
+    data(){
+        return {
+            username : '',
+            password : ''
+        }
+    },
+    methods : {
+        handleToLogin(){
+            console.log(typeof(this.username));
+            
+            //发送请求，post方式(地址，传递参数)
+            this.axios.post('/api2/users/login',{
+                username : this.username,
+                password : this.password
+            }).then((res)=>{
+                var status = res.data.status;
+                var This = this;
+                if(status === 0){
+                    messageBox({
+                        title : '登录',
+                        content : '登录成功',
+                        ok : '确定',
+                        handleOk(){
+                            This.$router.push('/mine/center')
+                        }
+                    });
+                }
+                else{
+                    messageBox({
+                        title : '登录',
+                        content : '登录失败',
+                        ok : '确定'
+                    })
+                }
+            })
+        }
+    }
 }
 </script>
 

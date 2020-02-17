@@ -52,11 +52,19 @@ export default {
             if(msg === 'ok'){
                 this.comingList = res.data.coming; 
             }*/
-            this.comingList = res.data.coming; 
-            this.isLoading = false;
-            this.prevCityId = cityId;
+            if(res){
+                this.comingList = res.data.coming; 
+                this.isLoading = false;
+                this.prevCityId = cityId;
+            }
+            
         })
     },
+    methods : {
+        handleToDetail(movieId){
+            this.$router.push('/movie/detail/2/'+movieId);
+        }
+    }
 }
 </script>
 
